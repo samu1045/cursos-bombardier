@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cursos · Quality PU1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #F5C400;
+    --black: #0d0d0d;
+    --gray-900: #161616;
+    --gray-800: #222222;
+    --gray-700: #333333;
+    --gray-500: #666666;
+    --gray-300: #aaaaaa;
+    --white: #f8f8f8;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* ── SPLASH ── */
+  #splash {
+    position: fixed; inset: 0;
+    background: var(--black);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 999;
+    gap: 0;
+    transition: opacity 0.5s ease;
+  }
+  #splash.hide { opacity: 0; pointer-events: none; }
+  .splash-badge {
+    background: var(--yellow);
+    color: var(--black);
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    padding: 6px 12px;
+    border-radius: 7px;
+    margin-bottom: 20px;
+  }
+  .splash-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .splash-sub {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-top: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .splash-line {
+    width: 40px; height: 2px;
+    background: var(--yellow);
+    margin: 24px auto;
+    border-radius: 2px;
+  }
+  .splash-enter {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--black);
+    background: var(--yellow);
+    border: none;
+    border-radius: 20px;
+    padding: 10px 28px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+  .splash-enter:hover { opacity: 0.85; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--gray-900);
+    border-bottom: 1px solid var(--gray-800);
+    padding: 18px 20px 14px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .logo-area { display: flex; align-items: center; gap: 10px; }
+  .logo-badge {
+    background: var(--yellow); color: var(--black);
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 11px; letter-spacing: 0.08em;
+    padding: 4px 8px; border-radius: 5px;
+  }
+  .logo-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: -0.01em; }
+  .logo-sub { font-size: 11px; color: var(--gray-500); margin-top: 1px; }
+  #sync-badge { font-size: 10px; color: var(--gray-500); display: flex; align-items: center; gap: 5px; }
+  #sync-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gray-700); transition: background 0.3s; }
+  #sync-badge .dot.ok  { background: #22c55e; }
+  #sync-badge .dot.err { background: #ef4444; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 4px; padding: 14px 20px 0; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.05em; padding: 7px 14px; border-radius: 20px;
+    border: 1px solid var(--gray-800); background: transparent;
+    color: var(--gray-500); cursor: pointer; white-space: nowrap; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--white); border-color: var(--gray-700); }
+  .tab.active { background: var(--yellow); color: var(--black); border-color: var(--yellow); }
+
+  /* ── SEARCH ── */
+  .search-wrap { padding: 14px 20px 0; }
+  .search-input {
+    width: 100%; background: var(--gray-900); border: 1px solid var(--gray-800);
+    border-radius: 8px; color: var(--white); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; padding: 10px 14px; outline: none; transition: border-color 0.2s;
+  }
+  .search-input::placeholder { color: var(--gray-700); }
+  .search-input:focus { border-color: var(--gray-600); }
+
+  /* ── CONTENT ── */
+  .content { padding: 20px; }
+  .state-msg { text-align: center; padding: 60px 20px; color: var(--gray-500); font-size: 13px; }
+  .state-msg .icon { font-size: 28px; margin-bottom: 10px; }
+
+  /* ── COUNT LINE ── */
+  .count-line { font-size: 11px; color: var(--gray-700); margin-bottom: 14px; letter-spacing: 0.04em; }
+  .count-line strong { color: var(--gray-500); }
+
+  /* ── COLLAPSIBLE GROUP ── */
+  .group-block { margin-bottom: 6px; }
+  .group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--gray-900);
+    border: 1px solid var(--gray-800);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+    margin-bottom: 0;
+  }
+  .group-header:hover { border-color: var(--gray-700); background: var(--gray-800); }
+  .group-header.open {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-color: transparent;
+    background: var(--gray-800);
+  }
+  .group-label {
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.1em; color: var(--yellow); text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .group-count {
+    font-size: 10px; font-weight: 500; color: var(--gray-500);
+    background: var(--gray-700); border-radius: 20px; padding: 2px 7px;
+    letter-spacing: 0;
+  }
+  .group-arrow {
+    font-size: 11px; color: var(--gray-500);
+    transition: transform 0.25s ease;
+  }
+  .group-header.open .group-arrow { transform: rotate(180deg); }
+
+  .group-body {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease;
+    border: 1px solid var(--gray-800);
+    border-top: none;
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+    background: var(--black);
+  }
+  .group-body.open { max-height: 2000px; }
+  .group-body-inner { padding: 8px 8px 8px; display: flex; flex-direction: column; gap: 6px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--gray-900); border: 1px solid var(--gray-800);
+    border-radius: 8px; padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--gray-700); }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  .card-course { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--white); line-height: 1.3; flex: 1; }
+  .chip { font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .chip-presencial { background: rgba(245,196,0,0.12); color: var(--yellow); }
+  .chip-virtual    { background: rgba(99,179,237,0.12); color: #63b3ed; }
+  .chip-elearning  { background: rgba(154,215,160,0.12); color: #9ad7a0; }
+  .chip-other      { background: rgba(255,255,255,0.06); color: var(--gray-300); }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: 11px; color: var(--gray-500); }
+  .card-meta span { display: flex; align-items: center; gap: 4px; }
+  .card-meta .user-pill { background: var(--gray-800); border-radius: 20px; padding: 2px 8px; color: var(--gray-300); font-size: 11px; }
+  .card-week { font-size: 10px; font-family: 'Syne', sans-serif; font-weight: 600; color: var(--gray-700); letter-spacing: 0.08em; margin-top: 6px; }
+
+  /* ── PEOPLE ── */
+  .people-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 4px; }
+  @media (max-width: 360px) { .people-grid { grid-template-columns: 1fr; } }
+  .person-card {
+    background: var(--gray-900); border: 1px solid var(--gray-800);
+    border-radius: var(--radius); padding: 20px 14px;
+    text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .person-avatar {
+    width: 64px; height: 64px; border-radius: 50%; background: var(--gray-800);
+    overflow: hidden; border: 2px solid var(--gray-700);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--yellow);
+  }
+  .person-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--white); }
+  .person-role { font-size: 11px; color: var(--gray-500); margin-top: -4px; }
+  .person-hours { font-size: 10px; color: var(--gray-700); background: var(--gray-800); border-radius: 20px; padding: 2px 8px; }
+  .person-links { display: flex; gap: 8px; }
+  .plink {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--gray-800); background: var(--gray-800);
+    color: var(--gray-300); text-decoration: none; font-size: 16px; transition: all 0.2s;
+  }
+  .plink:hover { background: var(--gray-700); color: var(--white); }
+  .plink.wa { color: #4ade80; }
+  .plink.em { color: #63b3ed; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <span class="splash-badge">QUALITY PU1</span>
+  <div class="splash-title">Calendario de<br>Capacitación</div>
+  <div class="splash-sub">Bombardier · Querétaro</div>
+  <div class="splash-line"></div>
+  <button class="splash-enter" onclick="enterApp()">VER CURSOS →</button>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+  <header>
+    <div class="header-top">
+      <div class="logo-area">
+        <span class="logo-badge">QU</span>
+        <div>
+          <div class="logo-title">Cursos · Quality PU1</div>
+          <div class="logo-sub">Bombardier</div>
+        </div>
+      </div>
+      <div id="sync-badge">
+        <span class="dot" id="dot"></span>
+        <span id="sync-text">cargando…</span>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('agente', this)">Por Agente</button>
+      <button class="tab" onclick="switchTab('curso', this)">Por Curso</button>
+      <button class="tab" onclick="switchTab('fecha', this)">Por Fecha</button>
+      <button class="tab" onclick="switchTab('people', this)">Equipo</button>
+    </div>
+    <div class="search-wrap" id="search-wrap">
+      <input class="search-input" type="text" id="search" placeholder="Buscar…" oninput="renderView()">
+    </div>
+  </header>
+  <div class="content" id="content">
+    <div class="state-msg"><div class="icon">⏳</div>Conectando con la base de datos…</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://andtyljudrsymincblaf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuZHR5bGp1ZHJzeW1pbmNibGFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NTUzNDUsImV4cCI6MjA5NjIzMTM0NX0.VN1gIifS7T_KX89_LOaIDbGAaPuEgR_gWLibT6mOhR4';
+const HEADERS = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+
+let allData = [];
+let currentTab = 'agente';
+
+const OWNERS = [
+  { name: 'Samuel Mejia',  role: 'Quality PU1', hours: 'Lun–Vie · 7:00–16:30', initials: 'SM', wa: 'https://wa.me/521XXXXXXXXXX', email: 'samuel.mejia@bombardier.com' },
+  { name: 'Omar Balderas', role: 'Quality PU1', hours: 'Lun–Vie · 7:00–16:30', initials: 'OB', wa: 'https://wa.me/521XXXXXXXXXX', email: 'omar.balderas@bombardier.com' }
+];
+
+function enterApp() {
+  document.getElementById('splash').classList.add('hide');
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }, 500);
+  fetchData();
+}
+
+async function fetchData() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/Cursos?select=*&order=fecha_inicio.asc`, { headers: HEADERS });
+    if (!res.ok) throw new Error(res.status);
+    allData = await res.json();
+    document.getElementById('dot').className = 'dot ok';
+    document.getElementById('sync-text').textContent = `${allData.length} registros`;
+    renderView();
+  } catch(e) {
+    document.getElementById('dot').className = 'dot err';
+    document.getElementById('sync-text').textContent = 'error de conexión';
+    document.getElementById('content').innerHTML =
+      `<div class="state-msg"><div class="icon">⚠️</div>No se pudo conectar con Supabase.<br><small style="color:#555">Revisa tu conexión.</small></div>`;
+  }
+}
+
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('search').value = '';
+  document.getElementById('search-wrap').style.display = tab === 'people' ? 'none' : 'block';
+  renderView();
+}
+
+function q() { return document.getElementById('search').value.toLowerCase().trim(); }
+
+function fmtDate(d) {
+  if (!d) return '—';
+  // Handle both YYYY-MM-DD and M/D/YYYY
+  let y, m, day;
+  if (d.includes('-')) { [y, m, day] = d.split('-'); }
+  else { const p = d.split('/'); m = p[0]; day = p[1]; y = p[2]; }
+  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return `${parseInt(day)} ${meses[parseInt(m)-1]}`;
+}
+
+function monthKey(d) {
+  if (!d) return '9999-12';
+  if (d.includes('-')) { const [y,m] = d.split('-'); return `${y}-${m.padStart(2,'0')}`; }
+  const p = d.split('/'); return `${p[2]}-${p[0].padStart(2,'0')}`;
+}
+
+function monthLabel(key) {
+  const [y, m] = key.split('-');
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  return `${meses[parseInt(m)-1]} ${y}`;
+}
+
+function chipClass(mod) {
+  if (!mod) return 'chip-other';
+  const m = mod.toLowerCase();
+  if (m.includes('presencial')) return 'chip-presencial';
+  if (m.includes('virtual') || m.includes('zoom') || m.includes('teams')) return 'chip-virtual';
+  if (m.includes('e-learning') || m.includes('elearning') || m.includes('online')) return 'chip-elearning';
+  return 'chip-other';
+}
+
+function buildCard(r) {
+  const chip = `<span class="chip ${chipClass(r.modalidad)}">${r.modalidad || 'N/A'}</span>`;
+  const dateRange = r.fecha_inicio === r.fecha_final
+    ? fmtDate(r.fecha_inicio)
+    : `${fmtDate(r.fecha_inicio)} → ${fmtDate(r.fecha_final)}`;
+  const userPill = r.usuario ? `<span class="user-pill">${r.usuario}</span>` : '';
+  const hora = r.hora_inicio ? `<span>🕐 ${r.hora_inicio}</span>` : '';
+  const dur  = r.duracion   ? `<span>⏱ ${r.duracion}</span>` : '';
+  const loc  = r.ubicacion  ? `<span>📍 ${r.ubicacion}</span>` : '';
+  const week = r.week       ? `<div class="card-week">WK ${r.week}</div>` : '';
+  return `
+  <div class="card">
+    <div class="card-top">
+      <div class="card-course">${r.nombre_curso || 'Sin nombre'}</div>${chip}
+    </div>
+    <div class="card-meta">${userPill}<span>📅 ${dateRange}</span>${hora}${dur}${loc}</div>
+    ${week}
+  </div>`;
+}
+
+function buildGroup(label, items, idx) {
+  const id = `g${idx}`;
+  const cards = items.map(r => buildCard(r)).join('');
+  return `
+  <div class="group-block">
+    <div class="group-header" onclick="toggleGroup('${id}', this)" id="hdr_${id}">
+      <div class="group-label">
+        ${label}
+        <span class="group-count">${items.length}</span>
+      </div>
+      <span class="group-arrow">▼</span>
+    </div>
+    <div class="group-body" id="${id}">
+      <div class="group-body-inner">${cards}</div>
+    </div>
+  </div>`;
+}
+
+function toggleGroup(id, hdr) {
+  const body = document.getElementById(id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  hdr.classList.toggle('open', !isOpen);
+}
+
+function renderView() {
+  const content = document.getElementById('content');
+  if (currentTab === 'people') { renderPeople(); return; }
+
+  const sq = q();
+  let data = allData.filter(r => {
+    if (!sq) return true;
+    return [r.nombre_curso, r.usuario, r.modalidad, r.ubicacion, r.fecha_inicio].join(' ').toLowerCase().includes(sq);
+  });
+
+  if (!data.length) {
+    content.innerHTML = `<div class="state-msg"><div class="icon">🔍</div>Sin resultados para "${sq}"</div>`;
+    return;
+  }
+
+  if (currentTab === 'agente') renderByGroup(data, 'usuario', content);
+  else if (currentTab === 'curso') renderByGroup(data, 'nombre_curso', content);
+  else renderByFecha(data, content);
+}
+
+function renderByGroup(data, field, content) {
+  const groups = {};
+  data.forEach(r => {
+    const key = r[field] || 'Sin definir';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  const keys = Object.keys(groups).sort();
+  let html = `<div class="count-line"><strong>${data.length}</strong> registros · ${keys.length} grupos</div>`;
+  keys.forEach((k, i) => { html += buildGroup(k, groups[k], `${field}_${i}`); });
+  content.innerHTML = html;
+}
+
+function renderByFecha(data, content) {
+  const groups = {};
+  data.forEach(r => {
+    const key = monthKey(r.fecha_inicio);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  const sorted = Object.keys(groups).sort();
+  let html = `<div class="count-line"><strong>${data.length}</strong> registros</div>`;
+  sorted.forEach((k, i) => { html += buildGroup(monthLabel(k), groups[k], `fecha_${i}`); });
+  content.innerHTML = html;
+}
+
+function renderPeople() {
+  let html = '<div class="people-grid">';
+  OWNERS.forEach(p => {
+    html += `
+    <div class="person-card">
+      <div class="person-avatar">${p.initials}</div>
+      <div><div class="person-name">${p.name}</div><div class="person-role">${p.role}</div></div>
+      <span class="person-hours">${p.hours}</span>
+      <div class="person-links">
+        <a class="plink wa" href="${p.wa}" target="_blank">💬</a>
+        <a class="plink em" href="mailto:${p.email}">✉️</a>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('content').innerHTML = html;
+}
+</script>
+</body>
+</html>
