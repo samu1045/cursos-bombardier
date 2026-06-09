@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F0EDE6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Portal · Quality PU1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<link rel="stylesheet" href="styles.css">
+<style>
+body{background:#F0EDE6;margin:0;padding:0}
+#splash{position:fixed;inset:0;background:#F0EDE6;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+.s-title{font-family:system-ui,sans-serif;font-size:clamp(32px,7vw,52px);font-weight:800;color:#111;text-align:center;line-height:1.05;margin-bottom:10px;letter-spacing:-.02em}
+.s-title span{color:#7A5E00}
+.s-enter{font-family:system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7A5E00;background:#F5C400;border:none;padding:13px 30px;border-radius:8px;cursor:pointer;margin-top:20px}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="s-item s-badge">Quality PU1 · Bombardier</div>
+  <div class="s-item s-title">SBU<br><span>Team</span></div>
+  <div class="s-item s-sub">Querétaro · 2026</div>
+  <div class="s-item s-divider"></div>
+  <div class="s-item s-stats">
+    <div class="s-stat"><span class="s-stat-num" id="stat-miembros">—</span><span class="s-stat-label">Miembros</span></div>
+    <div class="s-stat"><span class="s-stat-num" id="stat-cursos">—</span><span class="s-stat-label">Cursos</span></div>
+    <div class="s-stat"><span class="s-stat-num" id="stat-areas">—</span><span class="s-stat-label">Áreas</span></div>
+  </div>
+  <div class="s-item">
+    <button class="s-enter" onclick="enterApp()">Entrar al Portal →</button>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="hdr-top">
+      <div class="logo-area">
+        <div class="logo-badge">QU</div>
+        <div>
+          <div class="logo-title">Portal · Quality PU1</div>
+          <div class="logo-sub">Bombardier</div>
+        </div>
+      </div>
+      <div class="sync-badge">
+        <span class="dot" id="dot"></span>
+        <span id="sync-text">cargando…</span>
+      </div>
+    </div>
+    <div class="main-tabs">
+      <button class="mtab active" id="mtab-cursos" onclick="switchMain('cursos',this)">&#128218; Cursos</button>
+      <button class="mtab" id="mtab-equipo" onclick="switchMain('equipo',this)">&#128101; Equipo</button>
+    </div>
+  </header>
+
+  <div id="page-cursos" class="page active">
+    <div class="sub-tabs" id="subtabs-cursos">
+      <button class="stab active" onclick="switchSub('cursos','agente',this)">Por Agente</button>
+      <button class="stab" onclick="switchSub('cursos','curso',this)">Por Curso</button>
+      <button class="stab" onclick="switchSub('cursos','fecha',this)">Por Fecha</button>
+      <button class="stab" onclick="switchSub('cursos','completados',this)">Completados</button>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" type="text" id="search-cursos" placeholder="Buscar curso o agente…" oninput="renderCursos()">
+    </div>
+    <div class="content" id="content-cursos">
+      <div class="state-msg"><span class="icon">⏳</span>Cargando…</div>
+    </div>
+  </div>
+
+  <div id="page-equipo" class="page">
+    <div class="sub-tabs" id="subtabs-equipo">
+      <button class="stab active" onclick="switchSub('equipo','directorio',this)">Directorio</button>
+      <button class="stab" onclick="switchSub('equipo','vista',this)">Vista General</button>
+      <button class="stab" onclick="switchSub('equipo','responsables',this)">Our People</button>
+    </div>
+    <div class="search-wrap" id="search-wrap-equipo">
+      <input class="search-input" type="text" id="search-equipo" placeholder="Buscar empleado…" oninput="renderEquipo()">
+    </div>
+    <div class="content" id="content-equipo">
+      <div class="state-msg"><span class="icon">⏳</span>Cargando…</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
