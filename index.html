@@ -589,7 +589,9 @@ function enterApp(){
 }
 
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',loadAll);}else{loadAll();}
-const PIN='1108';
+const PIN_HASH='77459b9b941bcb4714d0c121313c900ecf30541d158eb2b9b178cdb8eca6457e';
+let pinAttempts=0;const PIN_MAX=3;const PIN_BLOCK_MS=2*60*1000;let pinBlockUntil=0;
+async function verifyPin(val){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(val));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')===PIN_HASH;}
 let editMode=false;
 let vgYear=new Date().getFullYear();
 let vgMonth=new Date().getMonth();
@@ -681,17 +683,31 @@ function showPin(){
 }
 function pinKey(k){
   if(pinBuffer.length>=4)return;
+  if(Date.now()<pinBlockUntil){showPinBlockMsg('pin-error',pinBlockUntil);return;}
   pinBuffer+=k;document.getElementById('pd'+(pinBuffer.length-1)).classList.add('filled');
   if(pinBuffer.length===4){
-    setTimeout(()=>{
-      if(pinBuffer===PIN){closePin();editMode=true;renderVistaGeneral();}
-      else{pinBuffer='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('filled');document.getElementById('pin-error').textContent='PIN incorrecto, intenta de nuevo';}
+    setTimeout(async()=>{
+      const ok=await verifyPin(pinBuffer);
+      if(ok){pinAttempts=0;closePin();editMode=true;renderVistaGeneral();}
+      else{
+        pinAttempts++;
+        pinBuffer='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('filled');
+        if(pinAttempts>=PIN_MAX){pinBlockUntil=Date.now()+PIN_BLOCK_MS;pinAttempts=0;showPinBlockMsg('pin-error',pinBlockUntil);}
+        else{document.getElementById('pin-error').textContent='PIN incorrecto — '+(PIN_MAX-pinAttempts)+' intento'+(PIN_MAX-pinAttempts===1?'':'s')+' restante'+(PIN_MAX-pinAttempts===1?'':'s');}
+      }
     },200);
   }
 }
 function pinDel(){if(!pinBuffer.length)return;document.getElementById('pd'+(pinBuffer.length-1)).classList.remove('filled');pinBuffer=pinBuffer.slice(0,-1);const err=document.getElementById('pin-error');if(err)err.textContent='';}
 function closePin(){const el=document.getElementById('pin-overlay');if(el)el.remove();pinBuffer='';}
 
+
+function showPinBlockMsg(elId,until){
+  const left=Math.max(0,Math.ceil((until-Date.now())/1000));
+  const m=Math.floor(left/60);const s=left%60;
+  const el=document.getElementById(elId);
+  if(el)el.textContent='Bloqueado '+m+':'+(s<10?'0':'')+s+' min por intentos fallidos';
+}
 function showCodePicker(){
   const overlay=document.createElement('div');overlay.className='code-overlay';overlay.id='code-overlay';
   const opts=CODES.map(c=>`<div class="code-opt ${c.cls}" onclick="selectCode('${c.code}')"><span class="code-opt-val">${c.code}</span><span class="code-opt-lbl">${c.label}</span></div>`).join('');
@@ -717,7 +733,7 @@ function closeCodePicker(){const el=document.getElementById('code-overlay');if(e
 
 
 // ── EDICION DE CURSOS ──
-const PIN_CURSOS='1108';
+
 let pinBufCursos='';
 
 function toggleEditCursos(){
@@ -734,11 +750,18 @@ function showPinCursos(){
 
 function pinKeyCursos(k){
   if(pinBufCursos.length>=4)return;
+  if(Date.now()<pinBlockUntil){showPinBlockMsg('cpin-error',pinBlockUntil);return;}
   pinBufCursos+=k;document.getElementById('cpd'+(pinBufCursos.length-1)).classList.add('filled');
   if(pinBufCursos.length===4){
-    setTimeout(()=>{
-      if(pinBufCursos===PIN_CURSOS){closePinCursos();editCursosMode=true;renderCursos();}
-      else{pinBufCursos='';for(let i=0;i<4;i++)document.getElementById('cpd'+i).classList.remove('filled');document.getElementById('cpin-error').textContent='PIN incorrecto';}
+    setTimeout(async()=>{
+      const ok=await verifyPin(pinBufCursos);
+      if(ok){pinAttempts=0;closePinCursos();editCursosMode=true;renderCursos();}
+      else{
+        pinAttempts++;
+        pinBufCursos='';for(let i=0;i<4;i++)document.getElementById('cpd'+i).classList.remove('filled');
+        if(pinAttempts>=PIN_MAX){pinBlockUntil=Date.now()+PIN_BLOCK_MS;pinAttempts=0;showPinBlockMsg('cpin-error',pinBlockUntil);}
+        else{document.getElementById('cpin-error').textContent='PIN incorrecto — '+(PIN_MAX-pinAttempts)+' intento'+(PIN_MAX-pinAttempts===1?'':'s')+' restante'+(PIN_MAX-pinAttempts===1?'':'s');}
+      }
     },200);
   }
 }
@@ -881,11 +904,7 @@ function getBdayData(){
     const nombre=extra.apodo||e.nombre;
     const inits=nombre.split(' ').map(w=>w[0]).slice(0,3).join('').toUpperCase();
     const area=e.seccion==='650'?'CL650':e.seccion==='3500'?'CL3500':e.seccion||'--';
-    const hoy=new Date();
-    const contrat=e.fecha_contratacion?new Date(e.fecha_contratacion+'T12:00:00'):null;
-    const seniority=contrat?+((hoy-contrat)/(365.25*24*3600*1000)).toFixed(2):extra.seniority||0;
-    const hire=contrat?contrat.toLocaleDateString('es-MX',{month:'short',year:'numeric'}):extra.hire||'--';
-    return{name:nombre,initials:inits,birth:{m:d.getMonth(),d:d.getDate()},area,seniority,hire,cake:e.pastel_favorito||'--'};
+    return{name:nombre,initials:inits,birth:{m:d.getMonth(),d:d.getDate()},area,seniority:extra.seniority||0,hire:extra.hire||'--',cake:e.pastel_favorito||'--'};
   });
 }
 function bdayIsToday(m,d){const n=new Date();return m===n.getMonth()&&d===n.getDate();}
